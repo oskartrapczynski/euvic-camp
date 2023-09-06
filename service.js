@@ -9,19 +9,15 @@ const evaluate = async (selector, page) => {
 };
 
 const service = async ({ url, titleSelector }) => {
-  const browserFetcher = puppeteer.createBrowserFetcher();
-  let revisionInfo = await browserFetcher.download('1095492');
-
   const browser = await puppeteer.launch({
-    executablePath: revisionInfo.executablePath,
-    ignoreDefaultArgs: ['--disable-extensions'],
     headless: true,
-    args: ['--no-sandbox', '--disabled-setupid-sandbox'],
+    executablePath: '/usr/bin/google-chrome',
+    args: ['--no-sandbox', '--disable-gpu'],
   });
 
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    await page.goto(url);
 
     const titles = evaluate(titleSelector, page);
     // const imgs = evaluate(imgSelector, page)
