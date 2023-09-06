@@ -1,22 +1,25 @@
-const functions = require('@google-cloud/functions-framework');
-const { service } = require('./service');
+const express = require('express');
+const puppeteer = require('puppeteer');
 
-functions.http('scraper', (req, res) => {
-  try {
-    // if (!req.titleSelector) throw new Error('Missing titleSelector');
-    // if (!req.url) throw new Error('Missing url');
+const app = express();
 
-    // const { url, titleSelector } = req.body;
+app.get('/screenshot', async (req, res) => {
+  console.log('Taking screenshot');
+  const browser = await puppeteer.launch({
+    headless: true,
+    executablePath: '/usr/bin/google-chrome',
+    args: ['--no-sandbox', '--disable-gpu'],
+  });
+  const page = await browser.newPage();
+  await page.goto('https://www.google.com');
+  const imageBuffer = await page.screenshot();
+  await browser.close();
 
-    const url = 'https://www.onet.pl/';
-    const titleSelector = '.TitleWrapper_titleWrapper__1v73l';
+  res.set('Content-Type', 'image/png');
+  res.send(imageBuffer);
+  console.log('Screenshot taken');
+});
 
-    const resp = service({ url, titleSelector });
-
-    console.log(resp);
-
-    res.send(`Hello ${req.query.name || req.body.name || 'World'}!`);
-  } catch (e) {
-    res.send(e.message);
-  }
+app.listen(8080, () => {
+  console.log('Listening on port 8080');
 });
